@@ -1,42 +1,33 @@
-const apiKey = "d6edf437d6109733efb41f7d59b4b0e0";
+const apiKey = "26702a1270354e7992178d38130e75a1";
 
 const blogContainer = document.getElementById("blog-container");
 const searchField = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
+const PAGE_SIZE = 30;
 
-const PAGE_SIZE = 10;   // Free plan max per request
-const TOTAL_ARTICLES = 50;  // Total articles we want
-
-// Utility function to fetch multiple pages to reach 50 articles
-async function fetchArticles(urlBase) {
-    let articles = [];
-    const totalPages = Math.ceil(TOTAL_ARTICLES / PAGE_SIZE);
-
-    for (let page = 1; page <= totalPages; page++) {
-        const apiUrl = `${urlBase}&max=${PAGE_SIZE}&page=${page}`;
-        try {
-            const response = await fetch(apiUrl);
-            const data = await response.json();
-            if (data.articles) {
-                articles = articles.concat(data.articles);
-            }
-        } catch (error) {
-            console.error(`Error fetching page ${page}`, error);
-        }
+// Utility function to fetch via AllOrigins proxy to bypass CORS
+async function fetchViaProxy(url) {
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    try {
+        const response = await fetch(proxyUrl);
+        const data = await response.json();
+        return data.articles || [];
+    } catch (error) {
+        console.error("Error fetching news:", error);
+        return [];
     }
-    return articles;
 }
 
-// Fetch default top headlines
+// Fetch top headlines
 async function fetchRandomNews() {
-    const urlBase = `https://gnews.io/api/v4/top-headlines?category=general&lang=en&country=us&apikey=${apiKey}`;
-    return await fetchArticles(urlBase);
+    const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&pageSize=${PAGE_SIZE}&apiKey=${apiKey}`;
+    return await fetchViaProxy(apiUrl);
 }
 
 // Fetch news by search query
 async function fetchNewsQuery(query) {
-    const urlBase = `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&country=us&apikey=${apiKey}`;
-    return await fetchArticles(urlBase);
+    const apiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&pageSize=${PAGE_SIZE}&apiKey=${apiKey}`;
+    return await fetchViaProxy(apiUrl);
 }
 
 // Display news articles
@@ -53,20 +44,16 @@ function displayBlogs(articles) {
         blogCard.classList.add("blog-card");
 
         const img = document.createElement("img");
-        img.src = article.image || "fallback.jpg";
+        img.src = article.urlToImage || "fallback.jpg";
         img.alt = article.title || "News image";
 
         const title = document.createElement("h2");
-        title.textContent =
-            article.title?.length > 30
-                ? article.title.slice(0, 30) + "..."
-                : article.title || "No title";
+        const truncatedTitle = article.title?.length > 30 ? article.title.slice(0,30) + "..." : article.title || "No title";
+        title.textContent = truncatedTitle;
 
         const description = document.createElement("p");
-        description.textContent =
-            article.description?.length > 120
-                ? article.description.slice(0, 120) + "..."
-                : article.description || "No description available";
+        const truncatedDes = article.description?.length > 120 ? article.description.slice(0,120) + "..." : article.description || "No description available";
+        description.textContent = truncatedDes;
 
         blogCard.append(img, title, description);
 
@@ -78,7 +65,7 @@ function displayBlogs(articles) {
     });
 }
 
-// Search button functionality
+// Search button
 searchButton.addEventListener("click", async () => {
     const query = searchField.value.trim();
     if (!query) return;
