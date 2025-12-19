@@ -56,43 +56,37 @@ async function fetchNewsQuery(query){
 }
 
 
-function displayBlogs(articles){
+function displayBlogs(articles) {
     blogContainer.innerHTML = "";
-    articles.forEach((article) => {
+
+    articles.forEach(article => {
         const blogCard = document.createElement("div");
         blogCard.classList.add("blog-card");
+
         const img = document.createElement("img");
-        img.src = article.urlToImage;
-        img.alt = article.title; 
+        img.src = article.urlToImage || "fallback.jpg";
+        img.alt = article.title || "News image";
+
         const title = document.createElement("h2");
-       
-        const truncatedTitle = article.title.length > 30? article.title.slice(0,30) + "....":article.title;
-        title.textContent = truncatedTitle;
+        const titleText = article.title || "No title";
+        title.textContent =
+            titleText.length > 30 ? titleText.slice(0, 30) + "..." : titleText;
 
         const description = document.createElement("p");
+        const desc = article.description || "No description available";
+        description.textContent =
+            desc.length > 120 ? desc.slice(0, 120) + "..." : desc;
 
-        const truncatedDes = article.description.length > 120? article.description.slice(0,120) + "....":article.description;
+        blogCard.append(img, title, description);
 
-
-        description.textContent = article.description;
-
-        blogCard.appendChild(img);
-        blogCard.appendChild(title);
-        blogCard.appendChild(description);
-     
-        blogCard.addEventListener("click",() => {
+        blogCard.addEventListener("click", () => {
             window.open(article.url, "_blank");
-        })
+        });
 
         blogContainer.appendChild(blogCard);
-
-
-
-
-    })
-
-
+    });
 }
+
 
 (async () => {
     try{
