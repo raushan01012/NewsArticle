@@ -4,7 +4,7 @@ const blogContainer = document.getElementById("blog-container");
 const searchField = document.getElementById("search-input");
 const searchButton = document.getElementById("search-button");
 
-// Fetch top headlines (random news)
+
 async function fetchRandomNews() {
     try {
         const apiUrl = `https://newsapi.org/v2/top-headlines?country=us&pageSize=30&apiKey=${apiKey}`;
@@ -17,7 +17,7 @@ async function fetchRandomNews() {
     }
 }
 
-// Fetch news by search query
+
 async function fetchNewsQuery(query) {
     try {
         const apiUrl = `https://newsapi.org/v2/everything?q=${query}&pageSize=30&apiKey=${apiKey}`;
@@ -30,7 +30,7 @@ async function fetchNewsQuery(query) {
     }
 }
 
-// Display articles in the blog container
+
 function displayBlogs(articles) {
     blogContainer.innerHTML = "";
 
@@ -64,7 +64,7 @@ function displayBlogs(articles) {
     });
 }
 
-// Search button click event
+
 searchButton.addEventListener("click", async () => {
     const query = searchField.value.trim();
     if (query !== "") {
@@ -77,7 +77,7 @@ searchButton.addEventListener("click", async () => {
     }
 });
 
-// Immediately fetch random news on page load
+
 (async () => {
     try {
         const articles = await fetchRandomNews();
